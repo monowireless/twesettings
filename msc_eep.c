@@ -1,8 +1,10 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__APPLE__) || defined(__linux) || defined(__MINGW32__)
 
 #include <stdio.h>
 #include <string.h>
@@ -11,10 +13,16 @@
 
 static bool_t s_bInit = FALSE;
 static uint8 s_au8buff[EEPROM_6X_USER_SIZE];
-static const char *s_fname = "msc_eep.bin";
+
+static const char* s_default_savename = "twestgs.sav";
+const char *twesettings_save_filepath = NULL;
 
 static bool_t s_bReadFromFile();
 static bool_t s_bWriteToFile();
+
+inline static const char* s_get_savename() {
+	return (twesettings_save_filepath == NULL) ? s_default_savename : twesettings_save_filepath;
+}
 
 /*!
  * ファイルからデータを読み出す (MSC EEPROM シミュレート用)
@@ -25,9 +33,13 @@ static bool_t s_bWriteToFile();
 static bool_t s_bReadFromFile() {
 	bool_t bRet = FALSE;
 	FILE *fp = NULL;
-	fopen_s(&fp, s_fname, "rb");
+#if defined(_MSC_VER) || defined(__MINGW32__)
+	fopen_s(&fp, s_get_savename(), "rb");
+#elif defined(__APPLE__) || defined(__linux)
+	fp = fopen(s_get_savename(), "rb");
+#endif
 	if (fp != NULL) {
-		fread(s_au8buff, sizeof(uint8), EEPROM_6X_USER_SIZE, fp);
+		int ret = fread(s_au8buff, sizeof(uint8), EEPROM_6X_USER_SIZE, fp); (void)ret;
 		fclose(fp);
 	}
 	else {
@@ -48,7 +60,13 @@ static bool_t s_bReadFromFile() {
 static bool_t s_bWriteToFile() {
 	bool_t bRet = FALSE;
 	FILE *fp = NULL;
-	fopen_s(&fp, s_fname, "w+b");
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+	fopen_s(&fp, s_get_savename(), "w+b");
+#elif defined(__APPLE__) || defined(__linux)
+	fp = fopen(s_get_savename(), "w+b");
+#endif
+
 	if (fp != NULL) {
 		fwrite(s_au8buff, sizeof(uint8), EEPROM_6X_USER_SIZE, fp);
 		fclose(fp);

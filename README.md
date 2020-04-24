@@ -6,10 +6,12 @@ The TWELITE settings library (twesettings) is the part of Mono Wireless TWELITE 
 TWELITE 設定ライブラリ (twesettings) は TWELITE SDK の一部です。
 
 ## License (ライセンス)
-The MW-SLA-1 ([license/MW-SLA-1E.txt](license/MW-SLA-1E.txt), [license/MW-SLA-1J.txt](license/MW-SLA-1J.txt)) is applied.
+ The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms. 
 
-モノワイヤレスソフトウェア使用許諾契約書が適用されます。
+* MW-SLA ([license/MW-SLA-1E.txt](license/MW-SLA-1E.txt), [license/MW-SLA-1J.txt](license/MW-SLA-1J.txt))
+* MW-OSSLA ([license/MW-OSSLA-1E.txt](license/MW-OSSLA-1E.txt), [license/MW-OSSLA-1J.txt](license/MW-OSSLA-1J.txt))
+
+モノワイヤレスソフトウェア使用許諾契約書 (MW-SLA) ・モノワイヤレスオープンソースソフトウェア使用許諾契約書のデュアルライセンスです。
 
 ## Documents (ドキュメント)
 no document provided so far.
-

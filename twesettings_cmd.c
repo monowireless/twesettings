@@ -1,13 +1,17 @@
-﻿/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+﻿/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 #include "twecommon.h"
-#include "twesettings.h"
+#include "twesettings0.h"
 #include "twesettings_std.h"
 #include "twesettings_cmd.h"
 
 #include "tweinteractive.h"
+
+#include "twesettings_weak.h"
 
 /*!
  * コマンド処理の実装
@@ -47,7 +51,7 @@ TWE_APIRET TWESTG_CMD_u32CmdOp(uint8 u8Op, TWE_tsBuffer *pBufIn, TWE_tsBuffer *p
 	case E_TWESTG_CMD_OP_QUERY_MODULE_INFO:
 		if (u8firstbyte == 0x01) { // get module address
 			uint8 *q = pBufOut->pu8buff;
-			uint32 u32adr;
+			uint32 u32adr = 0;
 
 			apiRet = TWEINTRCT_cbu32GenericHandler(NULL, E_TWEINTCT_OP_GET_SID, 0, 0, &u32adr);
 

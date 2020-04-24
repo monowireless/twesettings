@@ -1,6 +1,8 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 /*! @file
  * 
@@ -151,6 +153,8 @@
 #include "tweinteractive_nvmutils.h"
 #include "twenvm.h"
 
+#include "msc_sys.h"
+
 #define APPID 0x12345678   //! アプリケーションID
 #define APPID_CRC8 0x37    //! アプリケーションIDのCRC8(計算した値)
 #define APPVER 0x01020300  //! バージョン番号
@@ -167,17 +171,6 @@
 #ifdef USE_MEM_SAVE
 #define STGS_SAVE_BUFF_SIZE 128     //! セーブバッファサイズ
 #endif
-
-/* Hardware related */
-uint32 u32TickCount_ms = 0; //! TWENET の互換性のため（タイマー)
-
-/* printf related */
-// do nothing so far (for printf.h)
-void _putchar(char character) {
-	char c[2] = { character, 0 };
-
-	OutputDebugStringA(c);
-}
 
 /* serial functions */
 static int TWETERM_iPutC(int c, TWE_tsFILE *fp) { return _putch(c); }
@@ -712,9 +705,9 @@ int main() {
 
 		// インタラクティブモードの設定
 		TWEINTRCT_tsContext *psIntr = TWEINTRCT_pscInit(&sFinal, &sSerCmd, fp, vProcessInputByte_Ascii, asFuncs);
-		psIntr->u8Mode = 1; //初期モードはインタラクティブ
+		psIntr->config.u8Mode = 1; //初期モードはインタラクティブ
 		psIntr->u16HoldUpdateScreen = 96; //画面リフレッシュを行う
-		psIntr->u8OptSerCmd = 0x01; // エコーバックを行う
+		psIntr->config.u8OptSerCmd = 0x01; // エコーバックを行う
 		TWEINTRCT_vReConf(psIntr); // 設定を反映させる
 	}
 

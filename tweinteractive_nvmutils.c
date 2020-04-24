@@ -1,6 +1,8 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 #if defined(JENNIC_CHIP_NAME)
 #include <jendefs.h>
@@ -8,7 +10,7 @@
 #elif defined(ESP32)
 #include "esp32_eep.h"
 #define vAHI_WatchdogRestart()
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || defined(__APPLE__) || defined(__linux) || defined(__MINGW32__)
 #include "msc_eep.h"
 #define vAHI_WatchdogRestart()
 #endif
@@ -17,12 +19,22 @@
 #include <string.h>
 
 #include "twecommon.h"
-#include "twesettings.h"
+#include "twesettings0.h"
 #include "twesettings_std.h"
 #include "twesettings_validator.h"
 #include "tweinteractive.h"
+#include "tweinteractive_keycode.h"
 #include "twenvm.h"
 
+#include "twesettings_weak.h"
+
+#define MENU_ITEM_COUNT 4
+static const char menu_string[MENU_ITEM_COUNT][24] = {
+	"r: Read sector.",
+	"R: Read ALL sectors.",
+	"e: Erase sector.",
+	"E: Erase ALL sectors.",
+};
 
 #if 0
 static void s_DumpMem(TWE_tsFILE *pSer, uint8 *p, uint8 l, uint16 u16AddrStart) {
@@ -50,23 +62,41 @@ static bool_t s_bDumpSector(TWE_tsFILE *pSer, uint8 u8sec) {
 		int i;
 		for (i = 0; i < EEPROM_6X_SEGMENT_SIZE; i++) {
 			if ((i & 0xF) == 0) {
-				TWE_fprintf(pSer, "%04x:", u16AddrStart + i);
+				TWE_fprintf(pSer, _TWELB "%04x:", u16AddrStart + i);
 				TWE_fflush(pSer);
 			}
-			if((i & 0xF) == 8) {
+			if((i & 0x3) == 0) {
 				TWE_fputc(' ', pSer);
 			}
-			TWE_fprintf(pSer, " %02x", u8buff[i]);
-			
-			if ((i & 0xF) == 0xF) {
-				TWE_fputs(_TWELB, pSer);
-			}
+			TWE_fprintf(pSer, "%02x", u8buff[i]);
 		}
 	} else {
-		TWE_fprintf(pSer, "%04x: ...(error)..."_TWELB, u16AddrStart);
+		TWE_fprintf(pSer, _TWELB "%04x: ...(error)...", u16AddrStart);
 	}
 
 	return bRet;
+}
+
+/*!
+ * Output one line to the display
+ */
+static inline void s_disp_menuitem(TWEINTRCT_tsContext *psIntr, const char* itemtext, int index) {
+	TWE_fputs(_TWET_INV, psIntr->pStream);
+	TWE_fputc(itemtext[0], psIntr->pStream);
+	TWE_fputs(_TWET_RST, psIntr->pStream);
+	TWE_fputc(itemtext[1], psIntr->pStream);
+	TWE_fputc(itemtext[2], psIntr->pStream);
+
+	if (index == psIntr->i16SelectedIndex) {
+		TWE_fputs(_TWET_INV, psIntr->pStream);
+	}
+
+	TWE_fputs(itemtext + 3, psIntr->pStream);
+	TWE_fputs(_TWELB, psIntr->pStream);
+
+	if (index == psIntr->i16SelectedIndex) {
+		TWE_fputs(_TWET_RST, psIntr->pStream);
+	}
 }
 
 /*!
@@ -74,12 +104,14 @@ static bool_t s_bDumpSector(TWE_tsFILE *pSer, uint8 u8sec) {
  */
 void TWEINTCT_vSerUpdateScreen_nvmutils(TWEINTRCT_tsContext *psIntr) {
 	TWEINTRCT_vSerHeadLine(psIntr, 0UL);
+	TWE_fputs(_TWELB, psIntr->pStream);
 
-	TWE_fputs(" r: Read sector."_TWELB, psIntr->pStream);
-	TWE_fputs(" R: Read ALL sectors."_TWELB, psIntr->pStream);
-	TWE_fputs(" e: Erase sector."_TWELB, psIntr->pStream);
-	TWE_fputs(" E: Erase ALL sectors."_TWELB, psIntr->pStream);
+	int i;
+	for (i = 0; i < MENU_ITEM_COUNT; i++) {
+		s_disp_menuitem(psIntr, menu_string[i], i);
+	}
 
+	TWE_fputs(_TWELB, psIntr->pStream);
 	TWEINTRCT_vSerFootLine(psIntr, 0); // フッター行の表示
 	TWE_fflush(psIntr->pStream);
 }
@@ -87,23 +119,41 @@ void TWEINTCT_vSerUpdateScreen_nvmutils(TWEINTRCT_tsContext *psIntr) {
 /*!
  * インタラクティブモードでの１バイトコマンド入力を処理する。
  * 
- * \param u8Byte 入力バイト
+ * \param keycode 入力バイト
  */
-void TWEINTCT_vProcessInputByte_nvmutils(TWEINTRCT_tsContext *psIntr, uint8 u8Byte) {
+void TWEINTCT_vProcessInputByte_nvmutils(TWEINTRCT_tsContext *psIntr, TWEINTRCT_tkeycode keycode) {
 	bool_t bHandled = FALSE;
 	bool_t bForceRedraw = FALSE;
 	TWE_APIRET ret = 0;
 
 	psIntr->u16HoldUpdateScreen = 0;
 
-	switch (u8Byte) {
+	// commit selection
+	if (keycode == _TWECR) {
+		if (psIntr->i16SelectedIndex >= 0 && psIntr->i16SelectedIndex < MENU_ITEM_COUNT) {
+			keycode = menu_string[psIntr->i16SelectedIndex][0]; // the first byte of menu string is shortcut key.
+		}
+	}
+
+	switch (keycode) {		
+	case TWEINTRCT_KEY_UP:
+		if (psIntr->i16SelectedIndex > 0) {
+			psIntr->i16SelectedIndex--;
+		}
+		break;
+
+	case TWEINTRCT_KEY_DOWN:
+		if (psIntr->i16SelectedIndex < MENU_ITEM_COUNT - 1) {
+			psIntr->i16SelectedIndex++;
+		}
+		break;
+
 	case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9': // DIRECT SECTOR READ
 		{
-			uint8 u8n = u8Byte - '0';
+			uint8 u8n = keycode - '0';
 
 			u8n *= 4;
-			TWE_fprintf(psIntr->pStream, "READ SECTOR %d-%d:"_TWELB, u8n, u8n+3);
-
+			TWE_fprintf(psIntr->pStream, "\033[2J\033[H", u8n, u8n+3);
 			s_bDumpSector(psIntr->pStream, u8n++);
 			s_bDumpSector(psIntr->pStream, u8n++);
 			s_bDumpSector(psIntr->pStream, u8n++);
@@ -137,7 +187,7 @@ void TWEINTCT_vProcessInputByte_nvmutils(TWEINTRCT_tsContext *psIntr, uint8 u8By
 		break;
 	
 	default:
-		ret = TWEINTRCT_u32MenuOpKey(psIntr, u8Byte);
+		ret = TWEINTRCT_u32MenuOpKey(psIntr, keycode);
 
 		if (TWE_APIRET_IS_SUCCESS(ret)) {
 			bHandled = TRUE;
@@ -211,11 +261,11 @@ void TWEINTCT_vProcessInputString_nvmutils(TWEINTRCT_tsContext *psIntr, TWEINPST
 				u8sec = (pContext->u32Opt >> 8) & 0xFF;
 				bRet = TWENVM_bErase(u8sec);
 				if (bRet) {
-					TWE_fputs("(ERASED)", psIntr->pStream);
+					TWE_fputs(_TWELB "(ERASED)", psIntr->pStream);
 				} else {
 					TWE_fputs("(ERASE ERROR)", psIntr->pStream);
-					psIntr->u16HoldUpdateScreen = 96;
 				}
+				psIntr->u16HoldUpdateScreen = 96;
 			} else {
 				TWE_fputs("(canceled)", psIntr->pStream);
 				psIntr->u16HoldUpdateScreen = 96;
@@ -231,7 +281,9 @@ void TWEINTCT_vProcessInputString_nvmutils(TWEINTRCT_tsContext *psIntr, TWEINPST
 					TWENVM_bErase(u8sec);
 					u8sec++;
 				}
-				TWE_fputs("(ERASED)", psIntr->pStream);
+				TWE_fputs(_TWELB "(ERASED)", psIntr->pStream);
+				psIntr->i16SelectedIndex = -1;
+				psIntr->u16HoldUpdateScreen = 96;
 			} else {
 				TWE_fputs("(canceled)", psIntr->pStream);
 				psIntr->u16HoldUpdateScreen = 96;
@@ -260,6 +312,8 @@ TWE_APIRET TWEINTCT_u32ProcessMenuEvent_nvmutils(TWEINTRCT_tsContext *psIntr, ui
 		case E_TWEINTCT_MENU_EV_LOAD:
 			TWEINTRCT_cbu32GenericHandler(psIntr, E_TWEINTCT_MENU_EV_LOAD, psIntr->u8screen, 0, NULL); // メニューへの遷移（初期化）をアプリケーションに伝える
 			ret = TWE_APIRET_SUCCESS;
+
+			psIntr->i16SelectedIndex = -1;
 		break;
 
 		default:

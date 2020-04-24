@@ -1,6 +1,8 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 /** @file
  *
@@ -82,12 +84,13 @@ extern "C" {
 #define _TWELF 0x0a //! LF
 #define _TWECLR 0x0c //! Ctrl-L
 #define _TWEBS 0x08 //! BS
-#define _TWETAB 0x09 //! BS
+#define _TWETAB 0x09 //! TAB
 #define _TWEESC 0x1b //! ESC
 #define _TWEEOT 0x04 //! EOT
 
-#define _TWET_INV "\0337m" //! 反転
-#define _TWET_RST "\0330m" //! 表示リセット
+#define _TWET_INV "\033[7m" //! 反転
+#define _TWET_BLD "\033[1m" //! BOLD
+#define _TWET_RST "\033[0m" //! 表示リセット
 #define _TWET_CLS "\033[2J\033[H" //! クリアスクリーン
 
 #ifdef __cplusplus

@@ -1,6 +1,8 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 // include all headers
 
@@ -17,7 +19,7 @@
 #include "tweinputstring.h"
 #include "twestring.h"
 
-#include "twesettings.h"
+#include "twesettings0.h"
 #include "twesettings_std.h"
 #include "twesettings_cmd.h"
 #include "twesettings_validator.h"
@@ -28,5 +30,11 @@
 #include "tweinteractive_settings.h"
 #include "tweinteractive_nvmutils.h"
 
+#include "twesettings_callbacks.h"
+
 #include "twesysutils.h"
 #include "twenvm.h"
+
+#ifdef _MSC_VER
+#include "twesettings_weak.h"
+#endif

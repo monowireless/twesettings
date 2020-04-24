@@ -1,5 +1,8 @@
-/* Copyright (C) 2017,2019 Mono Wireless Inc. All Rights Reserved.          *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).  */
+/* Copyright (C) 2017,2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 /****************************************************************************/
 /***        Include files                                                 ***/
@@ -82,9 +85,9 @@ typedef enum {
  *
  * NOTES:
  ****************************************************************************/
-#if defined(ARDUINO)
-#include <Arduino.h>
-#define u32TickCount_ms millis()
+#if defined(ESP32)
+extern uint32_t _u32GetTick_ms();
+#define u32TickCount_ms _u32GetTick_ms()
 #else
 extern volatile uint32 u32TickCount_ms; //!< ToCoNet での TickTimer
 #endif

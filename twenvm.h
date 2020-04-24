@@ -1,6 +1,8 @@
-/* Copyright (C) 2017 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 /** @file
  *
@@ -16,7 +18,7 @@
 #include <eeprom_6x.h>
 #include <jendefs.h>
 #include <AppHardwareApi.h>
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) || defined(__APPLE__) || defined(__linux) || defined(__MINGW32__)
 #include "msc_eep.h"
 #endif
 #include "twecommon.h"

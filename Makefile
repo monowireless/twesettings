@@ -1,7 +1,9 @@
 ##########################################################################
-# Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.
-# Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE
-# AGREEMENT). 
+#/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+# * 
+# * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+# * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+# * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 #
 # MONOWIRELESS MAKEFILE TEMPLATE (for TWELITE NET application build)
 # TWELITE NET のアプリケーションを作成するための Makefile です。
@@ -76,9 +78,9 @@ APPSRC += printf.c
 ### Target type
 # アプリケーション(.bin)をビルドするか、ライブラリ(.a)にするか指定します。
 # - ライブラリをリンクする場合は、ADDITIONAL_LIBS に定義を加えてください。
-#
-#TARGET_TYPE=bin # for building final application
-TARGET_TYPE=a # 
+
+#TARGET_TYPE=bin
+TARGET_TYPE = a
 
 ### ToCoNet debug build
 # ToCoNet のスタックデバッグ出力を使用する場合 1 を指定します。

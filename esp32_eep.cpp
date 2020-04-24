@@ -1,8 +1,10 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
-#if defined(ARDUINO) && defined(ESP32)
+#if defined(ESP32)
 
 #include "twecommon.h"
 #include "esp32_eep.h"
@@ -20,7 +22,6 @@ void EEP_6x_vInit() {
 
 	s_bInit = TRUE;
 }
-
 
 /*!
  * EEPROM 読み出し関数 (MSC EEPROM シミュレート用)

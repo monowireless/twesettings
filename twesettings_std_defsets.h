@@ -1,6 +1,8 @@
-﻿/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+﻿/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
  /** @file
   *
@@ -26,6 +28,10 @@ typedef enum {
 	E_TWESTG_DEFSETS_OPTBITS,
 	E_TWESTG_DEFSETS_UARTBAUD,
 	
+	E_TWESTG_DEFSETS_OPT_DWORD1,
+	E_TWESTG_DEFSETS_OPT_DWORD2,
+	E_TWESTG_DEFSETS_OPT_DWORD3,
+
 	E_TWESTG_DEFSETS_VOID = 0xFF,
 } teTWESTG_STD_DEFSETS;
 
@@ -37,6 +43,7 @@ extern const uint8 TWESTG_DEFCUST_SLOT[][4];
 extern const uint8 TWESTG_DEFCUST_REMOVE_CHAN3[];
 extern const uint8 TWESTG_DEFCUST_REMOVE_CHAN1[];
 
+extern const TWESTG_tsElement TWESTG_DEFSETS_BASE_MWX[];
 
 #ifdef __cplusplus
 }

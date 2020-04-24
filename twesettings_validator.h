@@ -1,6 +1,8 @@
-﻿/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+﻿/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
  /** @file
   *
@@ -12,7 +14,7 @@
 #define TWESETTINGS_VLD_H_
 
 #include "twecommon.h"
-#include "twesettings.h"
+#include "twesettings0.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,12 +26,12 @@ extern "C" {
 
 #define TWESTGS_VLD_MAX_CUSTOMSTR_BUFF 32 //! 終端文字列を含む
 
-TWE_APIRET TWESTGS_VLD_u32MinMax(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer *pBuf);
-TWE_APIRET TWESTGS_VLD_u32AppId(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
-TWE_APIRET TWESTGS_VLD_u32ChList(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
-TWE_APIRET TWESTGS_VLD_u32UartOpt(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
-TWE_APIRET TWESTGS_VLD_u32UartBaudOpt(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
-
+TWE_APIRET TWESTGS_VLD_u32MinMax(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer *pBuf);
+TWE_APIRET TWESTGS_VLD_u32AppId(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
+TWE_APIRET TWESTGS_VLD_u32ChList(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
+TWE_APIRET TWESTGS_VLD_u32UartOpt(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
+TWE_APIRET TWESTGS_VLD_u32UartBaudOpt(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
+TWE_APIRET TWESTGS_VLD_u32String(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf);
 
 #ifdef __cplusplus
 }

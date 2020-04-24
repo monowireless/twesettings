@@ -1,11 +1,13 @@
-﻿/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+﻿/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 #include <string.h>
 
 #include "twecommon.h"
-#include "twesettings.h"
+#include "twesettings0.h"
 #include "twesettings_validator.h"
 
 #include "tweutils.h"
@@ -23,10 +25,15 @@
  * \param pBuf    読み込み・書き出し用のバッファ
  * \return        成功・失敗
  */
-TWE_APIRET TWESTGS_VLD_u32MinMax(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
+TWE_APIRET TWESTGS_VLD_u32MinMax(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
 	TWE_APIRET ret = TWE_APIRET_FAIL;
+	TWESTG_tuDatum* pDatum = &psDatum->uDatum;
 
-	if (u16OpId == TWESTGS_VLD_OP_VALIDATE) {
+	if (u16OpId == TWESTGS_VLD_OP_VALIDATE && pBuf->u8bufflen == 0) {
+		// 未入力の場合はデフォルトに戻す
+		TWESTG_vSetUDatumFrUDatum(pMe->sDatum.u8Type, pDatum, &pMe->sDatum.uDatum);
+		ret = TWE_APIRET_SUCCESS;
+	} else 	if (u16OpId == TWESTGS_VLD_OP_VALIDATE) {
 		uint32 u32num = 0;
 		switch (pMe->sFormat.u8Format) {
 		case E_TWEINPUTSTRING_DATATYPE_DEC_DECA:
@@ -77,8 +84,9 @@ TWE_APIRET TWESTGS_VLD_u32MinMax(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* p
  * \param pBuf    読み込み・書き出し用のバッファ
  * \return        成功・失敗
  */
-TWE_APIRET TWESTGS_VLD_u32String(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
+TWE_APIRET TWESTGS_VLD_u32String(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
 	TWE_APIRET ret = TWE_APIRET_FAIL;
+	TWESTG_tuDatum* pDatum = &psDatum->uDatum;
 
 	if (u16OpId == TWESTGS_VLD_OP_VALIDATE) {
 		if (pMe->sDatum.u8Len >= pBuf->u8bufflen) {
@@ -91,6 +99,9 @@ TWE_APIRET TWESTGS_VLD_u32String(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* p
 			if (p < e) {
 				*p = '\0';
 			}
+
+			// STRING のバッファ長の保存
+			psDatum->u8Len = pBuf->u8bufflen;
 
 			ret = TWE_APIRET_SUCCESS;
 		}
@@ -109,9 +120,15 @@ TWE_APIRET TWESTGS_VLD_u32String(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* p
  * \param pBuf    読み込み・書き出し用のバッファ
  * \return        成功・失敗
  */
-TWE_APIRET TWESTGS_VLD_u32AppId(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
+TWE_APIRET TWESTGS_VLD_u32AppId(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
 	TWE_APIRET ret = TWE_APIRET_FAIL;
+	TWESTG_tuDatum* pDatum = &psDatum->uDatum;
 
+	if (u16OpId == TWESTGS_VLD_OP_VALIDATE && pBuf->u8bufflen == 0) {
+		// 未入力の場合はデフォルトに戻す
+		TWESTG_vSetUDatumFrUDatum(pMe->sDatum.u8Type, pDatum, &pMe->sDatum.uDatum);
+		ret = TWE_APIRET_SUCCESS;
+	} else 
 	if (u16OpId == TWESTGS_VLD_OP_VALIDATE) {
 		if (pMe->sDatum.u8Type == TWESTG_DATATYPE_UINT32) {
 			uint32 u32num = TWESTR_u32HexstrToNum(pBuf->pu8buff, pBuf->u8bufflen);
@@ -144,10 +161,15 @@ TWE_APIRET TWESTGS_VLD_u32AppId(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pD
  * \param pBuf    読み込み・書き出し用のバッファ
  * \return        成功・失敗
  */
-TWE_APIRET TWESTGS_VLD_u32ChList(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
+TWE_APIRET TWESTGS_VLD_u32ChList(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
 	TWE_APIRET ret = TWE_APIRET_FAIL;
+	TWESTG_tuDatum* pDatum = &psDatum->uDatum;
 
-	if (u16OpId == TWESTGS_VLD_OP_VALIDATE) {
+	if (u16OpId == TWESTGS_VLD_OP_VALIDATE && pBuf->u8bufflen == 0) {
+		// 未入力の場合はデフォルトに戻す
+		TWESTG_vSetUDatumFrUDatum(pMe->sDatum.u8Type, pDatum, &pMe->sDatum.uDatum);
+		ret = TWE_APIRET_SUCCESS;
+	} else if (u16OpId == TWESTGS_VLD_OP_VALIDATE) {
 		uint32 u32chmask = 0; // 新しいチャネルマスク
 		uint8* p_token[3] = { NULL, NULL, NULL };
 
@@ -204,10 +226,11 @@ TWE_APIRET TWESTGS_VLD_u32ChList(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* p
 /**
  * UART のオプションを表示する
  */
-TWE_APIRET TWESTGS_VLD_u32UartOpt(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
+TWE_APIRET TWESTGS_VLD_u32UartOpt(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
 	const uint8  APPCONF_UART_CONF_PARITY_MASK = 0x3;
 	const uint8  APPCONF_UART_CONF_STOPBIT_MASK = 0x4;
 	const uint8  APPCONF_UART_CONF_WORDLEN_MASK = 0x8;
+	TWESTG_tuDatum* pDatum = &psDatum->uDatum;
 
 	TWE_APIRET ret = TWE_APIRET_FAIL;
 
@@ -269,13 +292,19 @@ TWE_APIRET TWESTGS_VLD_u32UartOpt(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* 
  * \param pBuf    読み込み・書き出し用のバッファ
  * \return        成功・失敗
  */
-TWE_APIRET TWESTGS_VLD_u32UartBaudOpt(struct _TWESTG_sElement* pMe, TWESTG_tuDatum* pDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
+TWE_APIRET TWESTGS_VLD_u32UartBaudOpt(struct _TWESTG_sElement* pMe, TWESTG_tsDatum* psDatum, uint16 u16OpId, TWE_tsBuffer* pBuf) {
 	const uint8  APPCONF_UART_CONF_PARITY_MASK = 0x3;
 	const uint8  APPCONF_UART_CONF_STOPBIT_MASK = 0x4;
 	const uint8  APPCONF_UART_CONF_WORDLEN_MASK = 0x8;
+	TWESTG_tuDatum* pDatum = &psDatum->uDatum;
 
 	TWE_APIRET ret = TWE_APIRET_FAIL;
 
+	if (u16OpId == TWESTGS_VLD_OP_VALIDATE && pBuf->u8bufflen == 0) {
+		// 未入力の場合はデフォルトに戻す
+		TWESTG_vSetUDatumFrUDatum(pMe->sDatum.u8Type, pDatum, &pMe->sDatum.uDatum);
+		ret = TWE_APIRET_SUCCESS;
+	} else 
 	if (u16OpId == TWESTGS_VLD_OP_VALIDATE) {
 		//uint32 u32chmask = 0; // 新しいチャネルマスク
 		uint8* p_token[2] = { NULL, NULL };

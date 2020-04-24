@@ -1,11 +1,13 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * 
+ * The twesettings library is dual-licensed under MW-SLA and MW-OSSLA terms.
+ * - MW-SLA-1J,1E or later (MONO WIRELESS SOFTWARE LICENSE AGREEMENT).
+ * - MW-OSSLA-1J,1E or later (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 #include <string.h>
 
 #include "twecommon.h"
-#include "twesettings.h"
+#include "twesettings0.h"
 #include "tweutils.h"
 
 #include "twesettings_std_defsets.h"
@@ -143,6 +145,8 @@ uint32 TWESTG_u32GetU32FrUDatum(uint8 u8Type, TWESTG_tuDatum *pDat) {
  * \param pDat tsDatum
  */
 void TWESTG_vSetUDatumFrU32(uint8 u8Type, TWESTG_tuDatum *pDat, uint32 u32val) {
+	pDat->u32 = 0; // clear zero (just in case)
+
 	switch (u8Type) {
         case TWESTG_DATATYPE_INT8:		pDat->i8 = (int8)u32val; break;
         case TWESTG_DATATYPE_UINT8:		pDat->u8 = (uint8)u32val; break;
@@ -153,6 +157,23 @@ void TWESTG_vSetUDatumFrU32(uint8 u8Type, TWESTG_tuDatum *pDat, uint32 u32val) {
         default:
 			break;
     }
+}
+
+/*!
+ * tsDatum の値を入れる
+ * \param pDat tsDatum
+ */
+void TWESTG_vSetUDatumFrUDatum(uint8 u8Type, TWESTG_tuDatum* pDat, const TWESTG_tuDatum* pRef) {
+	switch (u8Type) {
+	case TWESTG_DATATYPE_INT8:		pDat->i8 = pRef->i8; break;
+	case TWESTG_DATATYPE_UINT8:		pDat->u8 = pRef->u8; break;
+	case TWESTG_DATATYPE_INT16:		pDat->i16 = pRef->i16; break;
+	case TWESTG_DATATYPE_UINT16:	pDat->u16 = pRef->u16; break;
+	case TWESTG_DATATYPE_INT32:		pDat->i32 = pRef->i32; break;
+	case TWESTG_DATATYPE_UINT32:	pDat->u32 = pRef->u32; break;
+	default:
+		break;
+	}
 }
 
 /*!
@@ -521,7 +542,37 @@ TWE_APIRET TWESTG_u32FinalSetDefaults(TWESTG_tsFinal *psFinal) {
 				psFinal->asDatum[i].u8Opt = 0;
 			}
 		}
+	}
 
+	// STRING バッファの割当
+	{
+		uint8_t *p; uint8_t *e;
+		p = psFinal->psBuf->pu8buff;
+		e = psFinal->psBuf->pu8buff + psFinal->psBuf->u8bufflen_max;
+		memset(p, 0, psFinal->psBuf->u8bufflen_max); // clear buffer 
+		for (i = 0; i < psFinal->u8DataCount; i++) {
+			if (psFinal->asDatum[i].u8Type == TWESTG_DATATYPE_STRING) {
+				int len = psFinal->apEle[i]->sDatum.u8Len;
+				if (len > 0) {
+					const uint8_t *p_def = psFinal->asDatum[i].uDatum.pu8;
+					if (p + len < e) {
+						psFinal->asDatum[i].uDatum.pu8 = p;
+						p += len;
+						if (p_def != NULL) {
+							// copy default setting
+							memcpy(psFinal->asDatum[i].uDatum.pu8, p_def, len);
+						}
+					} else {
+						psFinal->asDatum[i].uDatum.pu8 = NULL; // error: insufficient pre-allocated buffer	
+					}
+				} else {
+					psFinal->asDatum[i].uDatum.pu8 = NULL; // error settings
+				}
+			}
+		}
+
+		// update the length
+		psFinal->psBuf->u8bufflen = (uint8_t)(p - psFinal->psBuf->pu8buff);
 	}
 
 	return TWE_APIRET_SUCCESS;
@@ -580,7 +631,6 @@ TWE_APIRET TWESTG_u32FinalLoad(TWESTG_tsFinal *psFinal, TWESTG_tsSlice *psSlice,
 					pD->u8Len = DATATYPE_GET_LEN(*pu8dat);
 					pD->u8Type = TWESTG_DATATYPE_STRING;
 
-					pD->uDatum.pu8 = psFinal->psBuf->pu8buff + psFinal->psBuf->u8bufflen;
 					memcpy(pD->uDatum.pu8, pu8dat + 1, pD->u8Len);
 				}
 				else { // 数値型

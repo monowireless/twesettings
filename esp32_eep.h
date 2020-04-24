@@ -1,11 +1,11 @@
-/* Copyright (C) 2019 Mono Wireless Inc. All Rights Reserved.    *
- * Released under MW-SLA-*J,*E (MONO WIRELESS SOFTWARE LICENSE   *
- * AGREEMENT).                                                   */
 #pragma once
+
+/* Copyright (C) 2019-2020 Mono Wireless Inc. All Rights Reserved.
+ * Released under MW-OSSLA-1J,1E (MONO WIRELESS OPEN SOURCE SOFTWARE LICENSE AGREEMENT). */
 
 #include "twecommon.h"
 
-#if defined(ARDUINO) && defined(ESP32)
+#if defined(ESP32)
 
 // just simulate eeprom on JN51XX.
 #define EEPROM_6X_SEGMENT_SIZE  (64)
@@ -26,4 +26,4 @@ bool_t EEP_6x_bWrite(uint16 u16StartAddr, uint16 u16Bytes, uint8* pu8Buffer);
 }
 #endif
 
-#endif // ARDUINO && ESP32
+#endif //  ESP32
