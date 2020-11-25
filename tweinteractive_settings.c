@@ -139,7 +139,7 @@ static void s_TWEINTCT_vSerUpdateScreen_settings(TWEINTRCT_tsContext *psIntr, in
 		{
 			// 設定名（入れ替えテーブルの探索）
 			const char *name = psIntr->psFinal->apEle[i]->sStr.strName;
-			TWESTG_tsMsgReplace *p = psIntr->msgReplace;
+			const TWESTG_tsMsgReplace *p = psIntr->msgReplace;
 			if(p) {
 				while(p->u8Id != 0xFF) { 
 					if (p->u8Id == psIntr->psFinal->apEle[i]->u16Id) {
@@ -370,7 +370,7 @@ void TWEINTCT_vProcessInputByte_settings(TWEINTRCT_tsContext *psIntr, TWEINTRCT_
 			
 			// 設定名（入れ替えテーブルの探索）
 			const char *desc = psIntr->psFinal->apEle[i]->sStr.strDesc;
-			TWESTG_tsMsgReplace *p = psIntr->msgReplace;
+			const TWESTG_tsMsgReplace *p = psIntr->msgReplace;
 			if(p) {
 				while(p->u8Id != 0xFF) { 
 					if (p->u8Id == psIntr->psFinal->apEle[i]->u16Id) {
