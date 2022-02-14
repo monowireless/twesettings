@@ -14,7 +14,7 @@
 
 #include "twecrc8.h"
 
-#define DATATYPE_GET_LEN(c) ((c) & 0x0F) //! データ型バイトからデータ長（バイト数）を得る
+#define DATATYPE_GET_LEN(c) ((c & 0x80) ? ((c) & 0x3F) : ((c) & 0x0F) ) //! データ型バイトからデータ長（バイト数）を得る
 #define DATATYPE_GET_TYPE(c) ((c) & 0x80 ? 0x80 : ((c) >> 4)) //! データ型バイトから型番号を得る
 
 /*!
@@ -631,7 +631,9 @@ TWE_APIRET TWESTG_u32FinalLoad(TWESTG_tsFinal *psFinal, TWESTG_tsSlice *psSlice,
 					pD->u8Len = DATATYPE_GET_LEN(*pu8dat);
 					pD->u8Type = TWESTG_DATATYPE_STRING;
 
-					memcpy(pD->uDatum.pu8, pu8dat + 1, pD->u8Len);
+					memset(pD->uDatum.pu8, 0, pE->sDatum.u8Len); // clear buffer
+	                    // in the case that the stored buffer is shorter than its limit.
+					memcpy(pD->uDatum.pu8, pu8dat + 1, pD->u8Len); // copy data
 				}
 				else { // 数値型
 					s_iConvBytesToDatum(pD, pu8dat);
