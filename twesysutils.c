@@ -43,7 +43,7 @@ void TWESYSUTL_vWaitPoll(uint32 u32WaitCt) {
 
     if (u32WaitCt >= 3) {
         u32target = u32WaitCt * 16000 - 2000;
-        bAHI_SetClockRate(6); // set 1MHz CPU
+        bAHI_SetClockRate(7); // set 2MHz CPU
     } else {
         // 16Mhz or 32Mhz を想定
         u32target = u32WaitCt * 16000;
